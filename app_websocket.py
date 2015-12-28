@@ -48,12 +48,12 @@ class ChatSocketHandler(tornado.websocket.WebSocketHandler):
         Выполняется в момент соединения клиента и сервера
         в данном случае в момент загрузки web страницы.
         """
-        print 'websocket client +1'
+        logging.info('websocket client +1')
         ChatSocketHandler.waiters.add(self)
 
     def on_close(self):
         """ Выполняется в момент закрытия или обновления web страницы. """
-        print 'websocket client -1'
+        logging.info('websocket client -1')
         ChatSocketHandler.waiters.remove(self)
 
     @classmethod
@@ -70,7 +70,7 @@ class ChatSocketHandler(tornado.websocket.WebSocketHandler):
     def update_cache(cls, chat):
         """
         Псевдо хранение сообщений в оперативной памяти
-        с пулом в 100 посдледдних сообщений
+        с пулом в 100 последних сообщений
         """
         cls.cache.append(chat)
         if len(cls.cache) > cls.cache_size:
@@ -87,14 +87,13 @@ class ChatSocketHandler(tornado.websocket.WebSocketHandler):
         chat['html'] = tornado.escape.to_basestring(
             self.render_string('message.html', message=chat)
         )
-
         # put it in cache and give to listeners
         ChatSocketHandler.update_cache(chat)
         ChatSocketHandler.send_updates(chat)
 
 
 def main():
-    print "Server started"
+    logging.info("Server started")
     tornado.options.parse_command_line()
     app = Application()
     app.listen(options.port)
